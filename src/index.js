@@ -1,4 +1,5 @@
-import { ApolloServer, gql } from 'apollo-server';
+import { ApolloServer, UserInputError, gql } from 'apollo-server';
+import { v4 as uuid } from 'uuid';
 
 // persons' data
 const persons = [
@@ -48,6 +49,15 @@ const typeDefs = gql`
     allPersons: [Person]!
     findPerson(name: String!): Person
   }
+
+  type Mutation {
+    addPerson(
+      name: String!
+      gender: String
+      street: String!
+      city: String!
+    ): Person
+  }
 `;
 
 /* A resolver is a function that's responsible for populating the data for a single field in your schema. */
@@ -58,6 +68,19 @@ const resolvers = {
     findPerson: (root, args) => {
       const { name } = args;
       return persons.find((person) => person.name === name);
+    },
+  },
+
+  Mutation: {
+    addPerson: (root, args) => {
+      if (persons.find((p) => p.name === args.name)) {
+        throw new UserInputError('Name is already used', {
+          invalidArgs: args.name,
+        });
+      }
+      const person = { ...args, id: uuid() };
+      persons.push(person);
+      return person;
     },
   },
 
