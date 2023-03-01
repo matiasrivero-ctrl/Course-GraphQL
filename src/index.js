@@ -31,6 +31,11 @@ const persons = [
 // Describing data
 // gql is a template string.
 const typeDefs = gql`
+  enum YesNo {
+    YES
+    NO
+  }
+
   type Address {
     street: String!
     city: String!
@@ -46,7 +51,7 @@ const typeDefs = gql`
 
   type Query {
     personCount: Int!
-    allPersons: [Person]!
+    allPersons(gender: YesNo): [Person]!
     findPerson(name: String!): Person
   }
 
@@ -64,7 +69,15 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     personCount: () => persons.length,
-    allPersons: () => persons,
+    allPersons: (root, args) => {
+      if (!args.gender) return persons;
+
+      const byGender = (person) => {
+        return args.gender === 'YES' ? person.gender : !person.gender;
+      };
+
+      return persons.filter(byGender);
+    },
     findPerson: (root, args) => {
       const { name } = args;
       return persons.find((person) => person.name === name);
