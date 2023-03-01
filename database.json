@@ -1,0 +1,27 @@
+{
+    "persons" : [
+        {
+           "name":"Smith Jones",
+           "gender":"Male",
+           "age":28,
+           "street":"724th Street",
+           "city":"New York",
+           "id":1
+        },
+        {
+           "name":"Joe Biden",
+           "gender":"Male",
+           "age":21,
+           "street":"120th Street",
+           "city":"Arizona",
+           "id":2
+        },
+        {
+           "name":"Bruce Lee",
+           "age":19,
+           "street":"Colombian Street",
+           "city":"Ohio",
+           "id":3
+        }
+     ]
+}

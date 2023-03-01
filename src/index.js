@@ -1,32 +1,8 @@
 import { ApolloServer, UserInputError, gql } from 'apollo-server';
 import { v4 as uuid } from 'uuid';
+import axios from 'axios';
 
-// persons' data
-const persons = [
-  {
-    name: 'Smith Jones',
-    gender: 'Male',
-    age: 28,
-    street: '724th Street',
-    city: 'New York',
-    id: 1,
-  },
-  {
-    name: 'Joe Biden',
-    gender: 'Male',
-    age: 21,
-    street: '120th Street',
-    city: 'Arizona',
-    id: 2,
-  },
-  {
-    name: 'Bruce Lee',
-    age: 19,
-    street: 'Colombian Street',
-    city: 'Ohio',
-    id: 3,
-  },
-];
+const { data: persons } = await axios.get('http://localhost:3000/persons');
 
 // Describing data
 // gql is a template string.
@@ -44,6 +20,7 @@ const typeDefs = gql`
   type Person {
     name: String!
     age: Int!
+    phone: String
     gender: String
     address: Address!
     id: ID!
@@ -62,6 +39,7 @@ const typeDefs = gql`
       street: String!
       city: String!
     ): Person
+    editPhone(name: String!, phone: String!): Person
   }
 `;
 
@@ -69,7 +47,7 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     personCount: () => persons.length,
-    allPersons: (root, args) => {
+    allPersons: async (root, args) => {
       if (!args.gender) return persons;
 
       const byGender = (person) => {
@@ -94,6 +72,17 @@ const resolvers = {
       const person = { ...args, id: uuid() };
       persons.push(person);
       return person;
+    },
+    editPhone: async (root, args) => {
+      const personIndex = persons.findIndex((p) => p.name === args.name);
+      if (personIndex === -1) return null;
+
+      const person = persons[personIndex];
+      const updatedPerson = { ...person, phone: args.phone };
+
+      persons[personIndex] = updatedPerson;
+
+      return updatedPerson;
     },
   },
 
